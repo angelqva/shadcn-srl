@@ -1,0 +1,243 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+enum EstadoEvento {
+    PENDIENTE
+    APROBADO
+    CANCELADO
+}
+
+enum EstadoOrden {
+    PENDIENTE
+    REVICION
+    APROBADO
+    CANCELADO
+}
+
+enum EstadoLocal {
+    ACTIVO
+    INACTIVO
+    EN_MANTENIMIENTO
+}
+
+enum EstadoMedio {
+    BUENO
+    ROTO
+    EN_MANTENIMIENTO
+    BAJA
+}
+
+model Usuario {
+    id             Int    @id @default(autoincrement())
+    correo         String @unique
+    nombreCompleto String
+    roles          String @default("usuario")
+
+    creadoEn       DateTime       @default(now())
+    actualizadoEn  DateTime       @default(now()) @updatedAt
+    eliminadoEn    DateTime?
+    contactos      Contacto[]
+    perfil         PerfilUsuario?
+    eventos        Evento[]
+    notificaciones Notificacion[]
+
+    @@map("usuarios")
+}
+
+model Notificacion {
+    id          Int     @id @default(autoincrement())
+    usuario     Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+    usuarioId   Int
+    titulo      String
+    descripcion String? @db.Text
+    enlace      String?
+    leido       Boolean @default(false)
+
+    creadoEn      DateTime  @default(now())
+    actualizadoEn DateTime  @updatedAt
+    eliminadoEn   DateTime?
+
+    @@map("notificaciones")
+}
+
+model PerfilUsuario {
+    id        Int       @id @default(autoincrement())
+    apodo     String?
+    bigrafia  String?   @db.Text
+    avatarUrl String?
+    telefono  String?
+    fechaNac  DateTime?
+
+    creadoEn      DateTime  @default(now())
+    actualizadoEn DateTime  @updatedAt
+    eliminadoEn   DateTime?
+
+    // Relación inversa 1–1 con Usuario
+    usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+    usuarioId Int     @unique
+
+    @@map("perfiles_usuarios")
+}
+
+model Contacto {
+    id             Int     @id @default(autoincrement())
+    nombreCompleto String
+    correo         String
+    telefono       String?
+
+    creadoEn      DateTime  @default(now())
+    actualizadoEn DateTime  @updatedAt
+    eliminadoEn   DateTime?
+
+    usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+    usuarioId Int
+
+    @@map("contactos")
+}
+
+model TipoEvento {
+    id            Int       @id @default(autoincrement())
+    nombre        String    @unique
+    icono         String
+    descripcion   String    @db.Text
+    creadoEn      DateTime  @default(now())
+    actualizadoEn DateTime  @default(now()) @updatedAt
+    eliminadoEn   DateTime?
+    Evento        Evento[]
+
+    @@map("tipos_de_eventos")
+}
+
+model Area {
+    codigo      String @id
+    nombre      String @unique
+    ubicacion   String @db.Text
+    descripcion String @db.Text
+
+    creadoEn      DateTime  @default(now())
+    actualizadoEn DateTime  @default(now()) @updatedAt
+    eliminadoEn   DateTime?
+
+    locales Local[]
+
+    @@map("areas")
+}
+
+model Local {
+    codigo       String      @id
+    nombre       String
+    estado       EstadoLocal @default(ACTIVO)
+    descripcion  String      @db.Text
+    ubicacion    String      @db.Text
+    responsables String      @db.Text
+
+    creadoEn      DateTime  @default(now())
+    actualizadoEn DateTime  @default(now()) @updatedAt
+    eliminadoEn   DateTime?
+
+    codigoArea String
+    area       Area     @relation(fields: [codigoArea], references: [codigo], onDelete: Cascade)
+    medios     Medio[]
+    Evento     Evento[]
+}
+
+model Medio {
+    codigo       String      @id
+    nombre       String
+    descripcion  String      @db.Text
+    responsables String      @db.Text
+    estado       EstadoMedio @default(BUENO)
+
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @default(now()) @updatedAt
+    eliminadoEn DateTime?
+
+    codigoLocal String
+    local       Local    @relation(fields: [codigoLocal], references: [codigo], onDelete: Cascade)
+    Evento      Evento[]
+}
+
+model Evento {
+    id     Int          @id @default(autoincrement())
+    titulo String
+    inicio DateTime
+    fin    DateTime
+    estado EstadoEvento @default(PENDIENTE)
+
+    // Relación al tipo de evento (creados por administrador)
+    tipoEvento       TipoEvento @relation(fields: [tipoEventoNombre], references: [nombre])
+    tipoEventoNombre String
+
+    // Puede ser personal (propio del usuario)...
+    usuario   Usuario? @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+    usuarioId Int?
+
+    // ...o de un local...
+    local       Local?  @relation(fields: [codigoLocal], references: [codigo], onDelete: Cascade)
+    codigoLocal String?
+
+    // ...o de un medio
+    medio       Medio?  @relation(fields: [codigoMedio], references: [codigo], onDelete: Cascade)
+    codigoMedio String?
+
+    creadoEn      DateTime  @default(now())
+    actualizadoEn DateTime  @updatedAt
+    eliminadoEn   DateTime?
+
+    OrdenAseguramiento OrdenAseguramiento[]
+
+    @@map("eventos")
+}
+
+model Aseguramiento {
+    id          Int     @id @default(autoincrement())
+    nombre      String  @unique
+    descripcion String? @db.Text
+
+    creadoEn      DateTime  @default(now())
+    actualizadoEn DateTime  @updatedAt
+    eliminadoEn   DateTime?
+
+    ordenDetalles OrdenAseguramientoDetalle[]
+
+    @@map("aseguramientos")
+}
+
+model OrdenAseguramiento {
+    id Int @id @default(autoincrement())
+
+    evento   Evento @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+    eventoId Int
+
+    estado EstadoOrden @default(PENDIENTE)
+
+    creadoEn      DateTime  @default(now())
+    actualizadoEn DateTime  @updatedAt
+    eliminadoEn   DateTime?
+
+    detalles OrdenAseguramientoDetalle[]
+
+    @@map("ordenes_aseguramiento")
+}
+
+model OrdenAseguramientoDetalle {
+    orden   OrdenAseguramiento @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+    ordenId Int
+
+    aseguramiento   Aseguramiento @relation(fields: [aseguramientoId], references: [id], onDelete: Cascade)
+    aseguramientoId Int
+
+    cantidadParticipantes Int @default(1)
+
+    @@id([ordenId, aseguramientoId])
+    @@map("ordenes_aseguramiento_detalles")
+}
