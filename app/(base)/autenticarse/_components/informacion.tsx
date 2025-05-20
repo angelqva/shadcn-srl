@@ -6,7 +6,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@heroui/react";
 import { LayoutDashboard } from "lucide-react";
-import LogoutButton from "@/components/logout-btn";
+import { LogoutButton } from "@/components/logout-btn";
 
 export function Informacion({
     user,
@@ -38,11 +38,14 @@ export function Informacion({
                                 className="font-semibold"
                                 color="secondary"
                                 href="/panel"
-                                startContent={<LayoutDashboard />}
+                                startContent={<Icon
+                                    className="!size-6"
+                                    icon="solar:slider-vertical-bold-duotone"
+                                />}
                                 variant="shadow"
                                 size="lg"
                             >
-                                Panel de Trabajo
+                                Panel del Sistema
                             </Button>
                             <p className="px-4 my-4 text-center">
                                 Si desea salir presione el enlace a continuación

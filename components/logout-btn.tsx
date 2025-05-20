@@ -5,7 +5,7 @@ import { signOut } from "next-auth/react";
 import { Icon } from "@iconify/react";
 import { ReactNode } from "react";
 
-export default function LogoutButton({
+export function LogoutButton({
   children,
   className,
   color,

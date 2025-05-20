@@ -14,23 +14,23 @@ export default withAuth(
 
     if (
       nextUrl.pathname.startsWith("/panel/gestionar") &&
-      !roles.includes("Administrador") &&
-      !roles.includes("Gestor")
+      !roles.includes("administrador") &&
+      !roles.includes("gestor")
     ) {
       return NextResponse.redirect(new URL("/panel/401", req.url));
     }
 
     if (
       nextUrl.pathname.startsWith("/panel/controlar") &&
-      !roles.includes("Administrador") &&
-      !roles.includes("Responsable")
+      !roles.includes("administrador") &&
+      !roles.includes("responsable")
     ) {
       return NextResponse.redirect(new URL("/panel/401", req.url));
     }
     if (
       nextUrl.pathname.startsWith("/panel/asegurar") &&
-      !roles.includes("Administrador") &&
-      !roles.includes("Logístico")
+      !roles.includes("administrador") &&
+      !roles.includes("logístico")
     ) {
       return NextResponse.redirect(new URL("/panel/401", req.url));
     }

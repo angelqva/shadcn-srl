@@ -1,5 +1,5 @@
 import { subtitle, title } from "@/components/primitives";
-import BtnPanel from "./_components/button_panel";
+import { BtnPanel } from "./_components/button_panel";
 
 
 export default function Page() {

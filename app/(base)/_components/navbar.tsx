@@ -6,7 +6,7 @@ import {
     NavbarItem,
     Button,
 } from "@heroui/react";
-import { CalendarDays, Fingerprint } from "lucide-react";
+import { Icon } from "@iconify/react/dist/iconify.js";
 import Link from "next/link";
 
 export const Navbar = () => {
@@ -14,8 +14,8 @@ export const Navbar = () => {
         <HeroUINavbar maxWidth="xl" position="sticky">
             <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
                 <NavbarBrand as="li" className="gap-3 max-w-fit">
-                    <Link className="flex items-center justify-start gap-1" href="/">
-                        <CalendarDays className="sm:w-8 sm:h-8" />
+                    <Link className="flex items-center justify-start gap-1 text-secondary-700" href="/">
+                        <Icon icon="solar:calendar-bold-duotone" className="size-7 sm:size-8" />
                         <span className="text-lg font-bold sm:text-xl text-inherit">SGRL-UC</span>
                     </Link>
                 </NavbarBrand>
@@ -24,10 +24,13 @@ export const Navbar = () => {
                 <NavbarItem className="flex">
                     <Button
                         as={Link}
-                        className="text-sm font-normal"
+                        className="text-sm font-semibold"
                         color="secondary"
                         href="/autenticarse"
-                        startContent={<Fingerprint />}
+                        startContent={<Icon
+                            className="size-7"
+                            icon="solar:shield-keyhole-bold"
+                        />}
                         variant="ghost"
                     >
                         Autenticarse

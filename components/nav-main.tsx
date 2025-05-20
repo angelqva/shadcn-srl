@@ -17,56 +17,83 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import { Icon } from "@iconify/react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string
-    url: string
-    icon?: LucideIcon
-    isActive?: boolean
-    items?: {
-      title: string
-      url: string
-    }[]
-  }[]
-}) {
+const links = [
+  {
+    nombre: "Actividades",
+    href: "/panel/gestionar/actividades",
+    icon: "solar:tag-horizontal-bold-duotone",
+  },
+  {
+    nombre: "Áreas",
+    href: "/panel/gestionar/areas",
+    icon: "solar:streets-map-point-bold-duotone",
+  },
+  {
+    nombre: "Locales",
+    href: "/panel/gestionar/locales",
+    icon: "solar:exit-bold-duotone",
+  },
+  {
+    nombre: "Medios",
+    href: "/panel/gestionar/medios",
+    icon: "solar:devices-bold-duotone",
+  },
+  {
+    nombre: "Usuarios",
+    href: "/panel/gestionar/usuarios",
+    icon: "solar:users-group-rounded-bold-duotone",
+  },
+]
+
+export function NavMain() {
+  const pathname = usePathname();
+  const setActiveClass = (path: string) => ({
+    className: cn(
+      pathname.startsWith(path) && "!bg-sidebar-accent !text-sidebar-accent-foreground !font-semibold"
+    )
+  })
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => (
-          <Collapsible
-            key={item.title}
-            asChild
-            defaultOpen={item.isActive}
-            className="group/collapsible"
-          >
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
+        <Collapsible
+          asChild
+          defaultOpen={pathname.startsWith("/panel/gestionar")}
+          className="group/collapsible"
+        >
+          <SidebarMenuItem>
+            <CollapsibleTrigger asChild>
+              <SidebarMenuButton tooltip="Gestionar" asChild>
+                <Link href="/panel/gestionar" {...setActiveClass("/panel/gestionar")}>
+                  <Icon
+                    className="!size-5"
+                    icon="solar:widget-add-bold-duotone"
+                  />
+                  <span>Gestionar</span>
                   <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub>
-                  {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton asChild>
-                        <a href={subItem.url}>
-                          <span>{subItem.title}</span>
-                        </a>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
-        ))}
+                </Link>
+              </SidebarMenuButton>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarMenuSub>
+                {links.map(({ nombre, href, icon }) => (
+                  <SidebarMenuSubItem key={'gestionar-' + nombre}>
+                    <SidebarMenuSubButton asChild>
+                      <Link href={href} {...setActiveClass(href)}>
+                        <Icon icon={icon} className="!size-5" />
+                        <span>{nombre}</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                ))}                
+              </SidebarMenuSub>
+            </CollapsibleContent>
+          </SidebarMenuItem>
+        </Collapsible>
       </SidebarMenu>
     </SidebarGroup>
   )
