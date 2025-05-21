@@ -2,6 +2,9 @@
 CREATE TYPE "EstadoEvento" AS ENUM ('PENDIENTE', 'APROBADO', 'CANCELADO');
 
 -- CreateEnum
+CREATE TYPE "TipoEvento" AS ENUM ('PERSONAL', 'LOCAL', 'MEDIO');
+
+-- CreateEnum
 CREATE TYPE "EstadoOrden" AS ENUM ('PENDIENTE', 'REVICION', 'APROBADO', 'CANCELADO');
 
 -- CreateEnum
@@ -69,7 +72,7 @@ CREATE TABLE "contactos" (
 );
 
 -- CreateTable
-CREATE TABLE "tipos_de_eventos" (
+CREATE TABLE "actividades" (
     "id" SERIAL NOT NULL,
     "nombre" TEXT NOT NULL,
     "icono" TEXT NOT NULL,
@@ -78,7 +81,7 @@ CREATE TABLE "tipos_de_eventos" (
     "actualizadoEn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "eliminadoEn" TIMESTAMP(3),
 
-    CONSTRAINT "tipos_de_eventos_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "actividades_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -132,7 +135,8 @@ CREATE TABLE "eventos" (
     "inicio" TIMESTAMP(3) NOT NULL,
     "fin" TIMESTAMP(3) NOT NULL,
     "estado" "EstadoEvento" NOT NULL DEFAULT 'PENDIENTE',
-    "tipoEventoNombre" TEXT NOT NULL,
+    "tipo" "TipoEvento" NOT NULL DEFAULT 'PERSONAL',
+    "nombreActividad" TEXT NOT NULL,
     "usuarioId" INTEGER,
     "codigoLocal" TEXT,
     "codigoMedio" TEXT,
@@ -183,7 +187,7 @@ CREATE UNIQUE INDEX "usuarios_correo_key" ON "usuarios"("correo");
 CREATE UNIQUE INDEX "perfiles_usuarios_usuarioId_key" ON "perfiles_usuarios"("usuarioId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "tipos_de_eventos_nombre_key" ON "tipos_de_eventos"("nombre");
+CREATE UNIQUE INDEX "actividades_nombre_key" ON "actividades"("nombre");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "areas_nombre_key" ON "areas"("nombre");
@@ -207,7 +211,7 @@ ALTER TABLE "Local" ADD CONSTRAINT "Local_codigoArea_fkey" FOREIGN KEY ("codigoA
 ALTER TABLE "Medio" ADD CONSTRAINT "Medio_codigoLocal_fkey" FOREIGN KEY ("codigoLocal") REFERENCES "Local"("codigo") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "eventos" ADD CONSTRAINT "eventos_tipoEventoNombre_fkey" FOREIGN KEY ("tipoEventoNombre") REFERENCES "tipos_de_eventos"("nombre") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "eventos" ADD CONSTRAINT "eventos_nombreActividad_fkey" FOREIGN KEY ("nombreActividad") REFERENCES "actividades"("nombre") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "eventos" ADD CONSTRAINT "eventos_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "usuarios"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -16,6 +16,12 @@ enum EstadoEvento {
     CANCELADO
 }
 
+enum TipoEvento {
+  PERSONAL
+  LOCAL
+  MEDIO
+}
+
 enum EstadoOrden {
     PENDIENTE
     REVICION
@@ -104,7 +110,7 @@ model Contacto {
     @@map("contactos")
 }
 
-model TipoEvento {
+model Actividad {
     id            Int       @id @default(autoincrement())
     nombre        String    @unique
     icono         String
@@ -114,7 +120,7 @@ model TipoEvento {
     eliminadoEn   DateTime?
     Evento        Evento[]
 
-    @@map("tipos_de_eventos")
+    @@map("actividades")
 }
 
 model Area {
@@ -172,10 +178,10 @@ model Evento {
     inicio DateTime
     fin    DateTime
     estado EstadoEvento @default(PENDIENTE)
-
-    // Relación al tipo de evento (creados por administrador)
-    tipoEvento       TipoEvento @relation(fields: [tipoEventoNombre], references: [nombre])
-    tipoEventoNombre String
+    tipo   TipoEvento @default(PERSONAL)
+    // Relación al tipo de actividad (creados por administrador)
+    actividad       Actividad @relation(fields: [nombreActividad], references: [nombre])
+    nombreActividad String
 
     // Puede ser personal (propio del usuario)...
     usuario   Usuario? @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
