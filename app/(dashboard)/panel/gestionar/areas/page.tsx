@@ -1,3 +1,5 @@
+import { BtnLink } from "@/components/btn-link"
+import { Headings } from "@/components/headings"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,6 +12,8 @@ import { Separator } from "@/components/ui/separator"
 import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { Icon } from "@iconify/react"
+import Lista from "./_components/list"
 
 
 
@@ -36,7 +40,7 @@ export default function Page() {
                   Gestionar
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />            
+              <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
                 <BreadcrumbPage>Áreas</BreadcrumbPage>
               </BreadcrumbItem>
@@ -45,7 +49,34 @@ export default function Page() {
         </div>
       </header>
       <div className="flex flex-1 flex-col px-4 md:px-6">
-        <div className="w-full"></div>
+        <div className="w-full">
+          <Headings
+            action={
+              <BtnLink
+                href="/panel/gestionar"
+                icon={
+                  <Icon
+                    className="w-12 h-12 text-white"
+                    icon="solar:multiple-forward-left-bold"
+                  />
+                }
+              >
+                Gestionar
+              </BtnLink>
+            }
+          >
+            <h1 className="text-3xl font-bold mb-2 text-secondary-800">
+              Gestión de las Áreas
+            </h1>
+            <p className="text-lg">
+              Gestiona fácilmente las áreas del sistema: puedes filtrarlas, crear
+              nuevas, editarlas o eliminarlas según lo necesites.
+            </p>
+          </Headings>
+        </div>
+        <div className="w-full">
+          <Lista />
+        </div>
       </div>
     </>
   )

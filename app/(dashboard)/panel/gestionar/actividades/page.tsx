@@ -1,4 +1,3 @@
-import { DbActividades } from "@/app/_db/db.actividades"
 import { BtnLink } from "@/components/btn-link"
 import { Headings } from "@/components/headings"
 import {
@@ -14,12 +13,11 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { Icon } from "@iconify/react"
-import ListadoActividades from "./_components/list"
+import Lista from "./_components/list"
 
 
 
-export default async function Page() {
-  const actividades = await DbActividades.list();
+export default function Page() {
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 bg-fuchsia-700/5 backdrop-blur-lg border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -75,7 +73,9 @@ export default async function Page() {
               filtrarlas, crear nuevas, editarlas o eliminarlas según lo necesites.
             </p>
           </Headings>
-          <ListadoActividades actividades={actividades} />
+        </div>
+        <div className="w-full">
+          <Lista />
         </div>
       </div>
     </>

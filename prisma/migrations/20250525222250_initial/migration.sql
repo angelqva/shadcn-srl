@@ -86,6 +86,7 @@ CREATE TABLE "actividades" (
 
 -- CreateTable
 CREATE TABLE "areas" (
+    "id" SERIAL NOT NULL,
     "codigo" TEXT NOT NULL,
     "nombre" TEXT NOT NULL,
     "ubicacion" TEXT NOT NULL,
@@ -94,11 +95,12 @@ CREATE TABLE "areas" (
     "actualizadoEn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "eliminadoEn" TIMESTAMP(3),
 
-    CONSTRAINT "areas_pkey" PRIMARY KEY ("codigo")
+    CONSTRAINT "areas_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Local" (
+    "id" SERIAL NOT NULL,
     "codigo" TEXT NOT NULL,
     "nombre" TEXT NOT NULL,
     "estado" "EstadoLocal" NOT NULL DEFAULT 'ACTIVO',
@@ -110,11 +112,12 @@ CREATE TABLE "Local" (
     "eliminadoEn" TIMESTAMP(3),
     "codigoArea" TEXT NOT NULL,
 
-    CONSTRAINT "Local_pkey" PRIMARY KEY ("codigo")
+    CONSTRAINT "Local_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Medio" (
+    "id" SERIAL NOT NULL,
     "codigo" TEXT NOT NULL,
     "nombre" TEXT NOT NULL,
     "descripcion" TEXT NOT NULL,
@@ -125,7 +128,7 @@ CREATE TABLE "Medio" (
     "eliminadoEn" TIMESTAMP(3),
     "codigoLocal" TEXT NOT NULL,
 
-    CONSTRAINT "Medio_pkey" PRIMARY KEY ("codigo")
+    CONSTRAINT "Medio_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -190,7 +193,16 @@ CREATE UNIQUE INDEX "perfiles_usuarios_usuarioId_key" ON "perfiles_usuarios"("us
 CREATE UNIQUE INDEX "actividades_nombre_key" ON "actividades"("nombre");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "areas_codigo_key" ON "areas"("codigo");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "areas_nombre_key" ON "areas"("nombre");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Local_codigo_key" ON "Local"("codigo");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Medio_codigo_key" ON "Medio"("codigo");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "aseguramientos_nombre_key" ON "aseguramientos"("nombre");

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import "./globals.css";
-import Providers from "./_providers";
+import Providers from "./_providers/provider.global";
 import clsx from "clsx";
 import { deleteCookie } from "./_servicios/servicio.cookie";
 

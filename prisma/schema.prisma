@@ -17,9 +17,9 @@ enum EstadoEvento {
 }
 
 enum TipoEvento {
-  PERSONAL
-  LOCAL
-  MEDIO
+    PERSONAL
+    LOCAL
+    MEDIO
 }
 
 enum EstadoOrden {
@@ -124,7 +124,8 @@ model Actividad {
 }
 
 model Area {
-    codigo      String @id
+    id          Int    @id @default(autoincrement())
+    codigo      String @unique
     nombre      String @unique
     ubicacion   String @db.Text
     descripcion String @db.Text
@@ -139,7 +140,8 @@ model Area {
 }
 
 model Local {
-    codigo       String      @id
+    id           Int         @id @default(autoincrement())
+    codigo       String      @unique
     nombre       String
     estado       EstadoLocal @default(ACTIVO)
     descripcion  String      @db.Text
@@ -157,7 +159,8 @@ model Local {
 }
 
 model Medio {
-    codigo       String      @id
+    id           Int         @id @default(autoincrement())
+    codigo       String      @unique
     nombre       String
     descripcion  String      @db.Text
     responsables String      @db.Text
@@ -173,14 +176,14 @@ model Medio {
 }
 
 model Evento {
-    id     Int          @id @default(autoincrement())
-    titulo String
-    inicio DateTime
-    fin    DateTime
-    estado EstadoEvento @default(PENDIENTE)
-    tipo   TipoEvento @default(PERSONAL)
+    id              Int          @id @default(autoincrement())
+    titulo          String
+    inicio          DateTime
+    fin             DateTime
+    estado          EstadoEvento @default(PENDIENTE)
+    tipo            TipoEvento   @default(PERSONAL)
     // Relación al tipo de actividad (creados por administrador)
-    actividad       Actividad @relation(fields: [nombreActividad], references: [nombre])
+    actividad       Actividad    @relation(fields: [nombreActividad], references: [nombre])
     nombreActividad String
 
     // Puede ser personal (propio del usuario)...

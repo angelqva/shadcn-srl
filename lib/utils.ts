@@ -29,3 +29,8 @@ export const handleErrors = (error: unknown) => {
 export function capitalize(str: string): string {
   return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
 }
+
+export function isValidDateString(date:string) {
+  const isDate = new Date(date);
+  return !isNaN(isDate.getTime());
+}

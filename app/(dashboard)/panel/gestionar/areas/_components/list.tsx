@@ -22,28 +22,30 @@ import {
     ModalBody,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { useActividadesStore } from "@/app/_store/store.actividades";
-import { Actividad } from "@prisma/client";
 import { DateTime } from "luxon";
 import { isValidDateString } from "@/lib/utils";
 import { Headings } from "@/components/headings";
 import { AddUpdate, Remove, Restore } from "./form";
+import { useAreasStore, IArea } from "@/app/_store/store.areas";
 
 const columnas = [
-    { name: "Icono/Nombre/Descripción", uid: "nombre", sortable: true },
+    { name: "Nombre/Descripcion", uid: "nombre", sortable: true },
+    { name: "Código", uid: "codigo", sortable: true },
+    { name: "Ubicación", uid: "ubicacion", sortable: true },
+    { name: "Locales", uid: "locales", sortable: true },
     { name: "Persistencia", uid: "persistencia", sortable: true },
     { name: "Creado", uid: "creadoEn" },
     { name: "Actualizado", uid: "actualizadoEn" },
     { name: "Acciones", uid: "acciones" },
 ];
 
-const columnasVisiblesIniciales = ["nombre", "persistencia", "creadoEn", "actualizadoEn", "acciones"];
+const columnasVisiblesIniciales = ["codigo", "nombre", "ubicacion", "locales", "persistencia", "creadoEn", "actualizadoEn", "acciones"];
 
-const persistenciaTexto = (actividad: Actividad) => (actividad.eliminadoEn ? "Eliminado" : "Activo");
-const persistenciaColor = (actividad: Actividad) => (actividad.eliminadoEn ? "danger" : "secondary");
-const persistenciaIcon = (actividad: Actividad) => (actividad.eliminadoEn ? "solar:trash-bin-minimalistic-bold" : "solar:check-circle-bold");
+const persistenciaTexto = (area: IArea) => (area.eliminadoEn ? "Eliminado" : "Activo");
+const persistenciaColor = (area: IArea) => (area.eliminadoEn ? "danger" : "secondary");
+const persistenciaIcon = (area: IArea) => (area.eliminadoEn ? "solar:trash-bin-minimalistic-bold" : "solar:check-circle-bold");
 const Lista = () => {
-    const { listado, loading, setSeleccion, seleccion } = useActividadesStore();
+    const { listado, loading, setSeleccion, seleccion } = useAreasStore();
     const { isOpen: isOpenVer, onOpen: onOpenVer, onClose: onCloseVer } = useDisclosure();
     const { isOpen: isOpenForm, onOpen: onOpenForm, onClose: onCloseForm } = useDisclosure();
     const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete } = useDisclosure();
@@ -89,38 +91,59 @@ const Lista = () => {
             .toFormat("dd/LL/yyyy hh:mm a");
     };
 
-    const renderCelda = (actividad: Actividad, columna: string) => {
+    const renderCelda = (area: IArea, columna: string) => {
         switch (columna) {
             case "nombre":
                 return (
                     <div className="flex w-full gap-2">
                         <div className="flex-1 min-w-11 h-11 rounded-md border-2 border-slate flex items-center justify-center">
-                            <Icon icon={actividad.icono} className="size-7 text-slate-700" />
+                            <Icon icon="solar:streets-map-point-bold-duotone" className="size-7 text-slate-700" />
                         </div>
                         <div className="w-full">
-                            <h3 className="text-slate-700 font-semibold line-clamp-1">{actividad.nombre}</h3>
+                            <h3 className="text-slate-700 font-semibold line-clamp-1">{area.nombre}</h3>
                             <p className="text-slate-500 text-sm line-clamp-1">
-                                {actividad.descripcion}
+                                {area.descripcion}
                             </p>
                         </div>
                     </div>
                 );
+            case "codigo":
+                return (
+                    <div className="flex items-center w-full gap-1">
+                        <Icon icon="solar:hashtag-broken" className="size-5 text-slate-700" />
+                        <h3 className="text-slate-700 font-semibold line-clamp-1">{area.codigo}</h3>
+                    </div>
+                );
+            case "ubicacion":
+                return (
+                    <div className="flex items-center w-full gap-1">
+                        <Icon icon="solar:map-point-wave-broken" className="size-5 text-slate-700" />
+                        <h3 className="text-slate-700 font-semibold line-clamp-1">{area.ubicacion}</h3>
+                    </div>
+                );
+            case "locales":
+                return (
+                    <div className="flex items-center w-full gap-1">
+                        <Icon icon="solar:exit-broken" className="size-5 text-slate-700" />
+                        <h3 className="text-slate-700 font-semibold line-clamp-1">{area.locales}</h3>
+                    </div>
+                );
             case "persistencia":
-                return <Chip classNames={{ content: ["capitalize font-semibold"] }} startContent={<Icon icon={persistenciaIcon(actividad)} className="size-5" />} color={persistenciaColor(actividad)} size="sm" variant="flat">
-                    {persistenciaTexto(actividad)}
+                return <Chip classNames={{ content: ["capitalize font-semibold"] }} startContent={<Icon icon={persistenciaIcon(area)} className="size-5" />} color={persistenciaColor(area)} size="sm" variant="flat">
+                    {persistenciaTexto(area)}
                 </Chip>;
             case "creadoEn":
                 return (
                     <div className="flex items-center w-full gap-1">
                         <Icon icon="hugeicons:database-export" className="size-5 text-slate-700" />
-                        <h3 className="text-slate-700 font-semibold line-clamp-1">{formatFecha(actividad.creadoEn)}</h3>
+                        <h3 className="text-slate-700 font-semibold line-clamp-1">{formatFecha(area.creadoEn)}</h3>
                     </div>
                 );
             case "actualizadoEn":
                 return (
                     <div className="flex items-center w-full gap-1">
                         <Icon icon="iconoir:database-backup" className="size-5 text-slate-700" />
-                        <h3 className="text-slate-700 font-semibold line-clamp-1">{formatFecha(actividad.actualizadoEn)}</h3>
+                        <h3 className="text-slate-700 font-semibold line-clamp-1">{formatFecha(area.actualizadoEn)}</h3>
                     </div>
                 );
             case "acciones":
@@ -140,7 +163,7 @@ const Lista = () => {
                                     }
                                     color="secondary"
                                     key="ver" onClick={() => {
-                                        setSeleccion(actividad.id);
+                                        setSeleccion(area.id);
                                         onOpenVer();
                                     }}>
                                     Visualizar
@@ -152,12 +175,12 @@ const Lista = () => {
                                         <Icon icon="hugeicons:pencil-edit-02" className="size-7" />
                                     }
                                     key="editar" onClick={() => {
-                                        setSeleccion(actividad.id);
+                                        setSeleccion(area.id);
                                         onOpenForm();
                                     }}>
                                     Editar
                                 </DropdownItem>
-                                {actividad.eliminadoEn ? (
+                                {area.eliminadoEn ? (
                                     <DropdownItem
                                         key="activo"
                                         className="text-primary font-semibold"
@@ -166,7 +189,7 @@ const Lista = () => {
                                         }
                                         color="primary"
                                         onClick={() => {
-                                            setSeleccion(actividad.id);
+                                            setSeleccion(area.id);
                                             onOpenRestore();
                                         }}
                                     >
@@ -182,7 +205,7 @@ const Lista = () => {
                                         }
                                         color="danger"
                                         onClick={() => {
-                                            setSeleccion(actividad.id);
+                                            setSeleccion(area.id);
                                             setSoft(true);
                                             onOpenDelete();
                                         }}
@@ -199,7 +222,7 @@ const Lista = () => {
                                     }
                                     color="danger"
                                     onClick={() => {
-                                        setSeleccion(actividad.id);
+                                        setSeleccion(area.id);
                                         setSoft(false);
                                         onOpenDelete();
                                     }}
@@ -211,7 +234,7 @@ const Lista = () => {
                     </div>
                 );
             default: {
-                const value = actividad[columna as keyof Actividad];
+                const value = area[columna as keyof IArea];
                 if (value instanceof Date || (typeof value === "string" && isValidDateString(value))) {
                     return formatFecha(value);
                 }
@@ -230,7 +253,7 @@ const Lista = () => {
                             onOpenForm();
                         }}
                         startContent={<Icon icon="ci:add-plus" className="size-7" />} variant="bordered" color="secondary">
-                        Nueva Actividad
+                        Nueva Área
                     </Button>
                     <Input
                         className="w-full sm:max-w-1/2"
@@ -322,12 +345,12 @@ const Lista = () => {
 
             {loading ? (
                 <div className="flex justify-center items-center h-[300px]">
-                    <Spinner label="Cargando actividades..." />
+                    <Spinner label="Cargando áreas..." />
                 </div>
             ) : (
                 <>
                     <Table
-                        aria-label="Tabla de actividades"
+                        aria-label="Tabla de áreas"
                         classNames={{
                             th: ["bg-secondary-100", "font-semibold", "text-secondary-700", "uppercase"],
                             td: ["text-slate-700 font-semibold"]
@@ -336,9 +359,9 @@ const Lista = () => {
                         <TableHeader columns={columnas.filter(c => columnasVisibles.includes(c.uid))} className="!bg-secondary-200">
                             {(col) => <TableColumn key={col.uid}>{col.name}</TableColumn>}
                         </TableHeader>
-                        <TableBody emptyContent="No se encontraron actividades" items={items}>
+                        <TableBody emptyContent="No se encontraron áreas" items={items}>
                             {(item) => (
-                                <TableRow key={item.id}>
+                                <TableRow key={item.codigo}>
                                     {(key) => <TableCell>{renderCelda(item, key.toString())}</TableCell>}
                                 </TableRow>
                             )}
@@ -346,7 +369,7 @@ const Lista = () => {
                     </Table>
                     <div className="flex justify-between items-center py-2 px-2 mt-4">
                         <span className="text-sm text-default-400">
-                            Mostrando {items.length} de {listadoFiltradas.length} actividades
+                            Mostrando {items.length} de {listadoFiltradas.length} áreas
                         </span>
                         <Pagination
                             isCompact
@@ -378,7 +401,7 @@ const Lista = () => {
                                                     }
                                                     onPress={() => onCloseVer()}
                                                 >
-                                                    Actividades
+                                                    Áreas
                                                 </Button>
                                             }
                                         >
@@ -387,7 +410,7 @@ const Lista = () => {
                                                     className="w-12 h-12 mr-2"
                                                     icon="icon-park-solid:view-grid-detail"
                                                 />
-                                                Vista de la Actividad
+                                                Vista del Área
                                             </h1>
                                             <p className="text-lg">
                                                 Revise sus detalles y características.
@@ -399,16 +422,8 @@ const Lista = () => {
                                                     className="w-8 h-8 mr-2 -mt-1 inline-flex"
                                                     icon="solar:hashtag-broken"
                                                 />
-                                                <b>ID: </b>
-                                                {seleccion?.id}
-                                            </p>
-                                            <p>
-                                                <Icon
-                                                    className="w-8 h-8 mr-2 -mt-1 inline-flex"
-                                                    icon="solar:info-square-broken"
-                                                />
-                                                <b>ICONO: </b>
-                                                {seleccion?.icono}
+                                                <b>Código: </b>
+                                                {seleccion?.codigo}
                                             </p>
                                             <p>
                                                 <Icon
@@ -425,6 +440,22 @@ const Lista = () => {
                                                 />
                                                 <b>DESCRIPCIÓN: </b>
                                                 {seleccion?.descripcion}
+                                            </p>
+                                            <p>
+                                                <Icon
+                                                    className="w-8 h-8 mr-2 -mt-1 inline-flex"
+                                                    icon="solar:map-point-wave-broken"
+                                                />
+                                                <b>Ubicación: </b>
+                                                {seleccion?.ubicacion}
+                                            </p>
+                                            <p>
+                                                <Icon
+                                                    className="w-8 h-8 mr-2 -mt-1 inline-flex"
+                                                    icon="solar:exit-broken"
+                                                />
+                                                <b>Locales: </b>
+                                                {seleccion?.locales}
                                             </p>
                                             <p>
                                                 <Icon
@@ -476,7 +507,7 @@ const Lista = () => {
                                                     }
                                                     onPress={() => onCloseForm()}
                                                 >
-                                                    Actividades
+                                                    Áreas
                                                 </Button>
                                             }
                                         >
@@ -485,15 +516,15 @@ const Lista = () => {
                                                     className="w-12 h-12 mr-2"
                                                     icon={`${seleccion ? 'hugeicons:pencil-edit-02' : 'ci:add-plus'}`}
                                                 />
-                                                {seleccion ? <span>Editar Actividad <span className="text-nowrap">
+                                                {seleccion ? <span>Editar Área <span className="text-nowrap">
                                                     <Icon
                                                         className="w-8 h-8 mr-2 -mt-1 inline-flex"
                                                         icon="solar:hashtag-broken"
-                                                    /> {seleccion.id}
-                                                </span></span> : 'Nueva Actividad'}
+                                                    /> {seleccion.codigo}
+                                                </span></span> : 'Nueva Área'}
                                             </h1>
                                             <p className="text-lg">
-                                                Rellene los datos necesarios para {seleccion ? 'editar' : 'crear'} la actividad.
+                                                Rellene los datos necesarios para {seleccion ? 'editar' : 'crear'} el área.
                                             </p>
                                         </Headings>
                                         <div className="w-full space-y-2 -translate-y-6">
@@ -524,7 +555,7 @@ const Lista = () => {
                                                     }
                                                     onPress={() => onCloseDelete()}
                                                 >
-                                                    Actividades
+                                                    Áreas
                                                 </Button>
                                             }
                                         >
@@ -533,11 +564,11 @@ const Lista = () => {
                                                     className="w-12 h-12 mr-2"
                                                     icon={`${soft ? "solar:trash-bin-minimalistic-bold" : "solar:check-circle-bold"}`}
                                                 />
-                                                {seleccion && <span>Eliminar Actividad <span className="text-nowrap">
+                                                {seleccion && <span>Eliminar Área <span className="text-nowrap">
                                                     <Icon
                                                         className="w-8 h-8 mr-2 -mt-1 inline-flex"
                                                         icon="solar:hashtag-broken"
-                                                    /> {seleccion.id}
+                                                    /> {seleccion.codigo}
                                                 </span></span>}
                                             </h1>
                                             <p className="text-lg">
@@ -572,7 +603,7 @@ const Lista = () => {
                                                     }
                                                     onPress={() => onCloseRestore()}
                                                 >
-                                                    Actividades
+                                                    Áreas
                                                 </Button>
                                             }
                                         >
@@ -581,11 +612,11 @@ const Lista = () => {
                                                     className="w-12 h-12 mr-2"
                                                     icon="hugeicons:database-restore"
                                                 />
-                                                {seleccion && <span>Restaurar Actividad <span className="text-nowrap">
+                                                {seleccion && <span>Restaurar Área <span className="text-nowrap">
                                                     <Icon
                                                         className="w-8 h-8 mr-2 -mt-1 inline-flex"
                                                         icon="solar:hashtag-broken"
-                                                    /> {seleccion.id}
+                                                    /> {seleccion.codigo}
                                                 </span></span>}
                                             </h1>
                                             <p className="text-lg">

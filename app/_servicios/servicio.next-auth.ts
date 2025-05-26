@@ -1,6 +1,6 @@
 import NextAuth, { AuthOptions, DefaultSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-
+import { getServerSession } from 'next-auth'
 import { ServicioLdap } from "@/app/_servicios/servicio.ldap";
 import { ServicioUsuario } from "@/app/_servicios/servicio.usuario";
 
@@ -105,4 +105,19 @@ export class ServicioNextAuth {
   };
 
   static handler = NextAuth(ServicioNextAuth.authOptions);
+  static async getSession() {
+    const session = await getServerSession(ServicioNextAuth.authOptions);
+    return session;
+
+  }
+  static async UsuarioConRoles(roles: string[]) {
+    const session = await ServicioNextAuth.getSession();
+    if(!session?.user) return null;
+    const userRoles = session.user.roles;
+    const haveRoles = roles.some((rol) => userRoles.includes(rol))
+    if(haveRoles){
+      return session.user;
+    }
+    return null;
+  }
 }
