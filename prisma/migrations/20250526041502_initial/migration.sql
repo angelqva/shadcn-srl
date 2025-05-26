@@ -110,7 +110,7 @@ CREATE TABLE "Local" (
     "creadoEn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "actualizadoEn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "eliminadoEn" TIMESTAMP(3),
-    "codigoArea" TEXT NOT NULL,
+    "areaId" INTEGER NOT NULL,
 
     CONSTRAINT "Local_pkey" PRIMARY KEY ("id")
 );
@@ -126,7 +126,7 @@ CREATE TABLE "Medio" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "eliminadoEn" TIMESTAMP(3),
-    "codigoLocal" TEXT NOT NULL,
+    "localId" INTEGER NOT NULL,
 
     CONSTRAINT "Medio_pkey" PRIMARY KEY ("id")
 );
@@ -217,10 +217,10 @@ ALTER TABLE "perfiles_usuarios" ADD CONSTRAINT "perfiles_usuarios_usuarioId_fkey
 ALTER TABLE "contactos" ADD CONSTRAINT "contactos_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "usuarios"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Local" ADD CONSTRAINT "Local_codigoArea_fkey" FOREIGN KEY ("codigoArea") REFERENCES "areas"("codigo") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Local" ADD CONSTRAINT "Local_areaId_fkey" FOREIGN KEY ("areaId") REFERENCES "areas"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Medio" ADD CONSTRAINT "Medio_codigoLocal_fkey" FOREIGN KEY ("codigoLocal") REFERENCES "Local"("codigo") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Medio" ADD CONSTRAINT "Medio_localId_fkey" FOREIGN KEY ("localId") REFERENCES "Local"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "eventos" ADD CONSTRAINT "eventos_nombreActividad_fkey" FOREIGN KEY ("nombreActividad") REFERENCES "actividades"("nombre") ON DELETE RESTRICT ON UPDATE CASCADE;

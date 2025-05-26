@@ -25,8 +25,13 @@ export const localResponsablesSchema = z.object({
   responsables: arrayEmailsSchema,
 });
 
+export const localAreaSchema = z.object({
+  areaId: z.number(),
+});
+
 export const localSchema = localNombreSchema
   .merge(localCodigoSchema)
   .merge(localUbicacionSchema)
   .merge(localDescripcionSchema)
-  .merge(localResponsablesSchema);
+  .merge(localResponsablesSchema)
+  .merge(localAreaSchema);

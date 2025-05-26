@@ -152,10 +152,10 @@ model Local {
     actualizadoEn DateTime  @default(now()) @updatedAt
     eliminadoEn   DateTime?
 
-    codigoArea String
-    area       Area     @relation(fields: [codigoArea], references: [codigo], onDelete: Cascade)
-    medios     Medio[]
-    Evento     Evento[]
+    areaId Int
+    area   Area     @relation(fields: [areaId], references: [id], onDelete: Cascade)
+    medios Medio[]
+    Evento Evento[]
 }
 
 model Medio {
@@ -170,9 +170,9 @@ model Medio {
     updatedAt   DateTime  @default(now()) @updatedAt
     eliminadoEn DateTime?
 
-    codigoLocal String
-    local       Local    @relation(fields: [codigoLocal], references: [codigo], onDelete: Cascade)
-    Evento      Evento[]
+    localId Int
+    local   Local    @relation(fields: [localId], references: [id], onDelete: Cascade)
+    Evento  Evento[]
 }
 
 model Evento {

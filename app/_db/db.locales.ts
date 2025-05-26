@@ -1,78 +1,94 @@
 import { ServicioPrisma } from "../_servicios/servicio.prisma";
-import { areaSchema } from "../_schemas/schema.areas";
 import { Respuesta, TipoRespuesta } from "../_types/type.response";
 import { ServicioErrores } from "../_servicios/servicio.errores";
+import { localSchema } from "../_schemas/schema.locales";
 
 const prisma = ServicioPrisma.Client();
 
-export class DbAreas {
-    static model = prisma.area;
+export class DbLocales {
+    static model = prisma.local;
     static async list(): Promise<Respuesta> {
         try {
-            const areas = await DbAreas.model.findMany({
+            const locales = await DbLocales.model.findMany({
                 orderBy: { actualizadoEn: "desc" },
                 include: {
+                    area: true,
                     _count: {
                         select: {
-                            locales: true
+                            medios: true
                         }
                     }
                 }
             });
             return {
                 tipo: TipoRespuesta.correcto,
-                datos: areas.map(a => {
-                    const { _count, ...rest } = a;
+                datos: locales.map(l => {
+                    const { _count, ...rest } = l;
                     return {
                         ...rest,
-                        locales: _count.locales
+                        medios: _count.medios
                     }
                 }),
-                toast: 'Áreas cargadas correctamente'
+                toast: 'Locales cargados correctamente'
             }
         } catch (error) {
             return ServicioErrores.prisma({ error, keys: [] as string[] })
         }
     }
-    static async retrieve(codigo: string): Promise<Respuesta> {
+    static async retrieve(id: number): Promise<Respuesta> {
         try {
-            const areaData = await DbAreas.model.findUnique({
-                where: { codigo }, include: {
+            const localData = await DbLocales.model.findUnique({
+                where: { id }, include: {
+                    area: true,
                     _count: {
                         select: {
-                            locales: true
+                            medios: true
                         }
                     }
                 }
             });
-            if (areaData) {
-                const { _count, ...area } = areaData;
+            if (localData) {
+                const { _count, ...local } = localData;
                 return {
                     tipo: TipoRespuesta.correcto,
-                    datos: { ...area, locales: _count.locales },
-                    toast: `Área: ${area.nombre}, encontrada satisfactoriamente!`
+                    datos: { ...local, medios: _count.medios },
+                    toast: `Local: ${local.nombre}, encontrada satisfactoriamente!`
                 }
             } else {
                 return {
                     tipo: TipoRespuesta.error,
-                    toast: `El Área con código: ${codigo} no se encuentra.`
+                    toast: `El Local con id: ${id} no se encuentra.`
                 }
             }
         } catch (error: unknown) {
-            return ServicioErrores.prisma({ error, keys: ["codigo"] })
+            return ServicioErrores.prisma({ error, keys: ["id"] })
         }
     }
     static async create(formData: FormData): Promise<Respuesta> {
-        const data = Object.fromEntries(formData.entries());
-        const parsed = areaSchema.safeParse(data);
+        const entries = Object.fromEntries(formData.entries());
+        const { responsables, areaId: area, ...rest } = entries;
+        const areaId = Number(area);
+        if(isNaN(areaId)){
+            return {
+                tipo: TipoRespuesta.error,
+                toast: 'Verifique los campos con error.',
+                errores: { areaId: "Proporcione un id válido"}
+            }
+        }
+        const data = {
+            ...rest,
+            areaId,
+            responsables: typeof responsables === 'string' ? responsables.split(';') : [],
+        };
+        const parsed = localSchema.safeParse(data);
         if (parsed.success) {
-            const fields = { ...parsed.data };
+            const fields = { ...parsed.data, responsables: parsed.data.responsables.join(";") };
             try {
-                const area = await DbAreas.model.create({ data: fields });
+                const local = await DbLocales.model.create({ data: fields });
                 return {
                     tipo: TipoRespuesta.correcto,
-                    datos: { ...area, locales: 0 },
-                    toast: `Área: ${area.nombre}, creada satisfactoriamente!`
+                    datos: { ...local, medios: 0 },
+                    toast: `Local: ${local.nombre}, creado satisfactoriamente!`
                 }
             } catch (error: unknown) {
                 return ServicioErrores.prisma({ error, keys: Object.keys(fields) })
@@ -85,53 +101,68 @@ export class DbAreas {
             }
         }
     }
-    static async update(codigo: string, formData: FormData): Promise<Respuesta> {
-        const data = Object.fromEntries(formData.entries());
-        const { eliminadoEn, ...rest } = data;
+    static async update(id: number, formData: FormData): Promise<Respuesta> {
+        const entries = Object.fromEntries(formData.entries());
+        const { responsables, areaId: area, eliminadoEn, ...rest } = entries;
+        const areaId = Number(area);
+        if(isNaN(areaId)){
+            return {
+                tipo: TipoRespuesta.error,
+                toast: 'Verifique los campos con error.',
+                errores: { areaId: "Proporcione un id válido"}
+            }
+        }
+        const data = {
+            ...rest,
+            areaId,
+            responsables: typeof responsables === 'string' ? responsables.split(';') : [],
+        };
         if (eliminadoEn && eliminadoEn === "null") {
             try {
-                const areaData = await DbAreas.model.update({
-                    where: { codigo },
+                const localData = await DbLocales.model.update({
+                    where: { id },
                     data: { eliminadoEn: null },
                     include: {
+                        area: true,
                         _count: {
                             select: {
-                                locales: true
+                                medios: true
                             }
                         }
                     }
                 });
-                const { _count, ...area } = areaData;
+                const { _count, ...local } = localData;
                 return {
                     tipo: TipoRespuesta.correcto,
-                    datos: { ...area, locales: _count.locales },
-                    toast: `Área: ${area.nombre}, restaurada satisfactoriamente!`
+                    datos: { ...local, medio: _count.medios },
+                    toast: `Local: ${local.nombre}, restaurado satisfactoriamente!`
                 }
             } catch (error: unknown) {
-                return ServicioErrores.prisma({ error, keys: Object.keys({ eliminadoEn: null }) })
+                return ServicioErrores.prisma({ error, keys: Object.keys({ eliminadoEn: null, id}) })
             }
         }
-        const parsed = areaSchema.safeParse(rest);
+        const parsed = localSchema.safeParse(data);
 
         if (parsed.success) {
-            const fields = { ...parsed.data };
+            const fields = { ...parsed.data, responsables: parsed.data.responsables.join(";") };
             try {
-                const areaData = await DbAreas.model.update({
-                    where: { codigo },
+                const localData = await DbLocales.model.update({
+                    where: { id },
                     data: fields,
                     include: {
+                        area:true,
                         _count: {
                             select: {
-                                locales: true
+                                medios: true
                             }
                         }
                     }
                 });
-                const { _count, ...area } = areaData;
+                const { _count, ...local } = localData;
                 return {
                     tipo: TipoRespuesta.correcto,
-                    datos: { ...area, locales: _count.locales },
-                    toast: `Área: ${area.nombre}, actualizada satisfactoriamente!`
+                    datos: { ...local, medios: _count.medios },
+                    toast: `Local: ${local.nombre}, actualizado satisfactoriamente!`
                 }
             } catch (error: unknown) {
                 return ServicioErrores.prisma({ error, keys: Object.keys(fields) })
@@ -144,41 +175,42 @@ export class DbAreas {
             }
         }
     }
-    static async softDelete(codigo: string): Promise<Respuesta> {
+    static async softDelete(id: number): Promise<Respuesta> {
         try {
-            const areaData = await DbAreas.model.update({
-                where: { codigo },
+            const localData = await DbLocales.model.update({
+                where: { id },
                 data: { eliminadoEn: new Date() }, include: {
-                    _count: {
+                    area:true,
+                    _count: {                        
                         select: {
-                            locales: true
+                            medios: true
                         }
                     }
                 }
             });
-            const { _count, ...area } = areaData;
+            const { _count, ...local } = localData;
             return {
                 tipo: TipoRespuesta.correcto,
-                datos: { ...area, locales: _count.locales },
-                toast: `Área: ${area.nombre}, eliminada satisfactoriamente!`
+                datos: { ...local, medios: _count.medios },
+                toast: `Área: ${local.nombre}, eliminado satisfactoriamente!`
             }
         } catch (error: unknown) {
             console.log(error);
-            return ServicioErrores.prisma({ error, keys: ["codigo"] })
+            return ServicioErrores.prisma({ error, keys: ["id"] })
         }
     }
-    static async delete(codigo: string): Promise<Respuesta> {
+    static async delete(id: number): Promise<Respuesta> {
         try {
-            const area = await DbAreas.model.delete({
-                where: { codigo }
+            const local = await DbLocales.model.delete({
+                where: { id }
             });
             return {
                 tipo: TipoRespuesta.correcto,
-                datos: { ...area },
-                toast: `Área: ${area.nombre}, eliminada satisfactoriamente!`
+                datos: { ...local },
+                toast: `Local: ${local.nombre}, eliminado satisfactoriamente!`
             }
         } catch (error: unknown) {
-            return ServicioErrores.prisma({ error, keys: ["codigo"] })
+            return ServicioErrores.prisma({ error, keys: ["id"] })
         }
     }
 }
