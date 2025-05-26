@@ -22,7 +22,7 @@ import {
     ModalBody,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { useActividadesStore } from "@/app/_store/store.actividades";
+import { useStore as useActividadesStore } from "@/app/_store/store.actividades";
 import { Actividad } from "@prisma/client";
 import { DateTime } from "luxon";
 import { isValidDateString } from "@/lib/utils";

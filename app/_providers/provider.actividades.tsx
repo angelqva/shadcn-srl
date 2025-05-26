@@ -1,6 +1,6 @@
 "use client";
 import { ReactNode, useEffect, useRef } from "react";
-import { useActividadesStore } from "../_store/store.actividades";
+import { useStore as useActividadesStore } from "../_store/store.actividades";
 
 export const ProviderActividades = ({ children }: { children: ReactNode }) => {
   const { listado, list, revalidate } = useActividadesStore();

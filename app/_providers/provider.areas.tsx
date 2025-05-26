@@ -1,6 +1,6 @@
 "use client";
 import { ReactNode, useEffect, useRef } from "react";
-import { useAreasStore } from "../_store/store.areas";
+import { useStore as useAreasStore } from "../_store/store.areas";
 
 export const ProviderAreas = ({ children }: { children: ReactNode }) => {
   const { listado, list, revalidate } = useAreasStore();

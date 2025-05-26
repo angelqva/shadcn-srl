@@ -26,7 +26,7 @@ import { DateTime } from "luxon";
 import { isValidDateString } from "@/lib/utils";
 import { Headings } from "@/components/headings";
 import { AddUpdate, Remove, Restore } from "./form";
-import { useAreasStore, IArea } from "@/app/_store/store.areas";
+import { useStore as useAreasStore, IObj as IArea } from "@/app/_store/store.areas";
 
 const columnas = [
     { name: "Nombre/Descripcion", uid: "nombre", sortable: true },

@@ -16,7 +16,7 @@ import { Icon } from "@iconify/react";
 import { ZodObject } from "zod";
 import { actividadNombreSchema, actividadDescripcionSchema, actividadIconoSchema, actividadSchema }
     from "@/app/_schemas/schema.actividades";
-import { useActividadesStore } from "@/app/_store/store.actividades";
+import { useStore as useActividadesStore } from "@/app/_store/store.actividades";
 import { Respuesta, TipoError } from "@/app/_types/type.response";
 
 

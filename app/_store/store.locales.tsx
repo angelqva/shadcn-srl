@@ -1,13 +1,15 @@
 import { create } from 'zustand'
-import { Area } from '@prisma/client';
+import { Area, Local } from '@prisma/client';
 import { Respuesta } from '../_types/type.response';
 import { apiFetch } from '../_servicios/servicio.fetch';
 
 
-const apiPath = "/areas"
-export interface IObj extends Area{
-  locales: number;
+export interface IObj extends Local {
+  medios: number;
+  area: Area;
 }
+
+const apiPath = "/locales"
 
 interface StoreState {
   listado: IObj[]
@@ -16,9 +18,9 @@ interface StoreState {
   list: () => Promise<void>
   revalidate: () => Promise<void>
   create: (data: FormData) => Promise<Respuesta>
-  update: (id:number, data: FormData) => Promise<Respuesta>
-  remove: (id:number, soft?: boolean) => Promise<Respuesta>
-  setSeleccion: (id:number | undefined) => void
+  update: (id: number, data: FormData) => Promise<Respuesta>
+  remove: (id: number, soft?: boolean) => Promise<Respuesta>
+  setSeleccion: (id: number | undefined) => void
 }
 
 export const useStore = create<StoreState>((set, get) => ({
@@ -57,7 +59,7 @@ export const useStore = create<StoreState>((set, get) => ({
     get().revalidate();
     return response;
   },
-  update: async (id:number, data: FormData) => {
+  update: async (id: number, data: FormData) => {
     const response = await apiFetch<IObj>({
       method: "PUT",
       path: `${apiPath}/${id}`,
@@ -73,7 +75,7 @@ export const useStore = create<StoreState>((set, get) => ({
     get().revalidate();
     return response;
   },
-  remove: async (id:number, soft = false) => {
+  remove: async (id: number, soft = false) => {
     const response = await apiFetch<IObj>({
       method: "DELETE",
       path: `${apiPath}/${id}`,
@@ -97,7 +99,7 @@ export const useStore = create<StoreState>((set, get) => ({
     get().revalidate();
     return response;
   },
-  setSeleccion: (id:number | undefined) => {
+  setSeleccion: (id: number | undefined) => {
     set((state) => ({
       seleccion: typeof id === "number"
         ? state.listado.find(a => a.id === id)

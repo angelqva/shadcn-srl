@@ -7,6 +7,7 @@ import { ReactNode } from 'react';
 import { FeedBack } from '@/components/feedback';
 import { ProviderActividades } from './provider.actividades';
 import { ProviderAreas } from './provider.areas';
+import { Provider as ProviderLocales } from './provider.locales';
 
 export default function Providers({ children, feedback, deleteCookie }: { children: ReactNode, feedback: unknown, deleteCookie: (name: string) => Promise<void> }) {
   const feedBackValue = (typeof feedback === 'object' && feedback !== null && 'value' in feedback) ? feedback.value as string : undefined;
@@ -17,7 +18,9 @@ export default function Providers({ children, feedback, deleteCookie }: { childr
         <SessionProvider>
           <ProviderActividades>
             <ProviderAreas>
-              {children}
+              <ProviderLocales>
+                {children}
+              </ProviderLocales>              
             </ProviderAreas>
           </ProviderActividades>
         </SessionProvider>

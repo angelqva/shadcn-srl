@@ -15,7 +15,7 @@ import { Icon } from "@iconify/react";
 import { ZodObject } from "zod";
 import { Respuesta, TipoError } from "@/app/_types/type.response";
 import { areaSchema, areaCodigoSchema, areaNombreSchema, areaUbicacionSchema, areaDescripcionSchema } from "@/app/_schemas/schema.areas";
-import { useAreasStore } from "@/app/_store/store.areas";
+import { useStore as useAreasStore } from "@/app/_store/store.areas";
 
 
 

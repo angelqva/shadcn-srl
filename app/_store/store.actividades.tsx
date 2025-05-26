@@ -5,10 +5,13 @@ import { apiFetch } from '../_servicios/servicio.fetch';
 
 
 const apiPath = "/actividades"
-interface ActividadesState {
-  listado: Actividad[]
+export interface IObj extends Actividad {
+  //agregar atributos si son necesarios
+}
+interface StoreState {
+  listado: IObj[]
   loading: boolean
-  seleccion?: Actividad
+  seleccion?: IObj
   list: () => Promise<void>
   revalidate: () => Promise<void>
   create: (data: FormData) => Promise<Respuesta>
@@ -17,12 +20,12 @@ interface ActividadesState {
   setSeleccion: (id: number | undefined) => void
 }
 
-export const useActividadesStore = create<ActividadesState>((set, get) => ({
-  listado: [] as Actividad[],
+export const useStore = create<StoreState>((set, get) => ({
+  listado: [] as IObj[],
   loading: true,
   seleccion: undefined,
   revalidate: async () => {
-    const response = await apiFetch<Actividad[]>({
+    const response = await apiFetch<IObj[]>({
       method: "GET",
       path: apiPath
     })
@@ -30,17 +33,17 @@ export const useActividadesStore = create<ActividadesState>((set, get) => ({
   },
   list: async () => {
     set({ loading: true })
-    const response = await apiFetch<Actividad[]>({
+    const response = await apiFetch<IObj[]>({
       method: "GET",
       path: apiPath
     })
     set({
-      listado: response.datos ?? [] as Actividad[],
+      listado: response.datos ?? [] as IObj[],
       loading: false,
     })
   },
   create: async (data: FormData) => {
-    const response = await apiFetch<Actividad>({
+    const response = await apiFetch<IObj>({
       method: "POST",
       path: apiPath,
       body: data
@@ -54,7 +57,7 @@ export const useActividadesStore = create<ActividadesState>((set, get) => ({
     return response;
   },
   update: async (id: number, data: FormData) => {
-    const response = await apiFetch<Actividad>({
+    const response = await apiFetch<IObj>({
       method: "PUT",
       path: `${apiPath}/${id}`,
       body: data
@@ -70,7 +73,7 @@ export const useActividadesStore = create<ActividadesState>((set, get) => ({
     return response;
   },
   remove: async (id: number, soft = false) => {
-    const response = await apiFetch<Actividad>({
+    const response = await apiFetch<IObj>({
       method: "DELETE",
       path: `${apiPath}/${id}`,
       query: { soft }
@@ -79,7 +82,7 @@ export const useActividadesStore = create<ActividadesState>((set, get) => ({
       set((state) => ({
         listado: response.datos
           ? state.listado.map((a) =>
-            a.id === id ? { ...response.datos as Actividad } : a
+            a.id === id ? { ...response.datos as IObj } : a
           )
           : state.listado
       }))
