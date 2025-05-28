@@ -562,7 +562,7 @@ const Lista = () => {
                                             <h1 className="text-3xl font-bold mb-2 text-secondary-800 flex items-center">
                                                 <Icon
                                                     className="w-12 h-12 mr-2"
-                                                    icon={`${soft ? "solar:trash-bin-minimalistic-bold" : "solar:check-circle-bold"}`}
+                                                    icon={`${soft ? "solar:trash-bin-minimalistic-broken" : "solar:trash-bin-minimalistic-bold"}`}
                                                 />
                                                 {seleccion && <span>Eliminar Área <span className="text-nowrap">
                                                     <Icon

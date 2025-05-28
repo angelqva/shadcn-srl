@@ -225,7 +225,7 @@ export function AddUpdate({ closeModal }: { closeModal: () => void }) {
 export function Remove({ closeModal, soft = false }: { closeModal: () => void, soft?: boolean }) {
     const { seleccion, remove } = useAreasStore();
     const [pending, setPending] = useState(false);
-    const deleteIcon = soft ? "solar:trash-bin-minimalistic-bold" : "solar:check-circle-bold";
+    const deleteIcon = soft ? "solar:trash-bin-minimalistic-broken" : "solar:trash-bin-minimalistic-bold";
     const handleDelete = async () => {
         setPending(true);
         if (seleccion) {
@@ -258,7 +258,7 @@ export function Remove({ closeModal, soft = false }: { closeModal: () => void, s
                     size="lg"
                     onPress={() => closeModal()}
                 >
-                    Cancelar la operación
+                    Cancelar
                 </Button>
                 <Button
                     className="w-full font-semibold sm:flex-grow"
@@ -272,7 +272,7 @@ export function Remove({ closeModal, soft = false }: { closeModal: () => void, s
                     }
                     onPress={() => handleDelete()}
                 >
-                    {soft ? "Marcar como eliminada" : "Eliminar definitivamente"}
+                    Eliminar
                 </Button>
             </div>
         </div>
@@ -312,7 +312,7 @@ export function Restore({ closeModal }: { closeModal: () => void }) {
                     size="lg"
                     onPress={() => closeModal()}
                 >
-                    Cancelar la operación
+                    Cancelar
                 </Button>
                 <Button
                     className="w-full font-semibold sm:flex-grow"
@@ -326,7 +326,7 @@ export function Restore({ closeModal }: { closeModal: () => void }) {
                     }
                     onPress={() => handleRestore()}
                 >
-                    Activar Área
+                    Restaurar
                 </Button>
             </div>
         </div>

@@ -13,6 +13,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { Icon } from "@iconify/react"
+import Lista from "./_components/list"
 
 
 
@@ -74,7 +75,7 @@ export default function Page() {
           </Headings>
         </div>
         <div className="w-full">
-          {/* <Lista /> */}
+          <Lista />
         </div>
       </div>
     </>

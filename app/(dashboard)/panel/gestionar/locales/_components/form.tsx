@@ -2,7 +2,8 @@
 
 import {
     FormEvent,
-    useEffect,
+    Key,
+    useMemo,
     useState,
 } from "react";
 import {
@@ -11,25 +12,37 @@ import {
     Form,
     Textarea,
     addToast,
+    Autocomplete,
+    AutocompleteItem,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { ZodObject } from "zod";
-import { actividadNombreSchema, actividadDescripcionSchema, actividadIconoSchema, actividadSchema }
-    from "@/app/_schemas/schema.actividades";
-import { useStore as useActividadesStore } from "@/app/_store/store.actividades";
 import { Respuesta, TipoError } from "@/app/_types/type.response";
+import * as localSchemas from "@/app/_schemas/schema.locales";
+import { useStore as useLocalesStore } from "@/app/_store/store.locales";
+import { useStore as useAreasStore } from "@/app/_store/store.areas";
+import { ReusableEmail } from "@/components/reusable-email";
 
 
 
 export function AddUpdate({ closeModal }: { closeModal: () => void }) {
-    const { seleccion, create, update } = useActividadesStore();
+    const { seleccion, create, update } = useLocalesStore();
+    const { listado: listadoAreas } = useAreasStore();
     const [formData, setFormData] = useState({
-        icono: seleccion?.icono ?? "",
+        codigo: seleccion?.codigo ?? "",
         nombre: seleccion?.nombre ?? "",
-        descripcion: seleccion?.descripcion ?? ""
+        ubicacion: seleccion?.ubicacion ?? "",
+        descripcion: seleccion?.descripcion ?? "",
+        responsables: seleccion?.responsables.split(";") ?? [] as string[],
+        areaId: typeof seleccion?.areaId === "number" ? String(seleccion?.areaId) : ""
     })
     const [pending, setPending] = useState(false);
     const [errors, setErrors] = useState<Record<string, string | string[]>>({});
+    const areas = useMemo(() => {
+        return listadoAreas
+            .filter(a => a.eliminadoEn === null)
+            .map(a => ({ id: String(a.id), name: a.nombre, codigo: a.codigo }))
+    }, [listadoAreas])
     const validateField = ({
         key,
         schema,
@@ -72,28 +85,54 @@ export function AddUpdate({ closeModal }: { closeModal: () => void }) {
 
         return "";
     };
-    const handleIconoChange = (value: string) => {
-        setFormData((formData) => ({ ...formData, icono: value }));
+    const handleCodigoChange = (value: string) => {
+        setFormData((formData) => ({ ...formData, codigo: value }));
         validateField({
-            key: "icono",
-            schema: actividadIconoSchema,
-            data: { icono: value },
+            key: "codigo",
+            schema: localSchemas.localCodigoSchema,
+            data: { codigo: value },
         });
     };
     const handleNombreChange = (value: string) => {
         setFormData((formData) => ({ ...formData, nombre: value }));
         validateField({
             key: "nombre",
-            schema: actividadNombreSchema,
+            schema: localSchemas.localNombreSchema,
             data: { nombre: value },
+        });
+    };
+    const handleUbicacionChange = (value: string) => {
+        setFormData((formData) => ({ ...formData, ubicacion: value }));
+        validateField({
+            key: "ubicacion",
+            schema: localSchemas.localUbicacionSchema,
+            data: { ubicacion: value },
         });
     };
     const handleDescripcionChange = (value: string) => {
         setFormData((formData) => ({ ...formData, descripcion: value }));
         validateField({
             key: "descripcion",
-            schema: actividadDescripcionSchema,
+            schema: localSchemas.localDescripcionSchema,
             data: { descripcion: value },
+        });
+    };
+    const handleResponsableChange = (value: string[]) => {
+        setFormData((formData) => ({ ...formData, responsables: value }));
+        validateField({
+            key: "responsables",
+            schema: localSchemas.localResponsablesSchema,
+            data: { responsables: value },
+        });
+    };
+    const handleAreaChange = (key: Key | null | undefined) => {
+        const keyVal = (key as string) ?? "areaId-";
+        const [_, areaVal] = keyVal.split('areaId-');
+        setFormData((formData) => ({ ...formData, areaId: areaVal }));
+        validateField({
+            key: "areaId",
+            schema: localSchemas.localAreaSchema,
+            data: { areaId: areaVal },
         });
     };
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -101,28 +140,30 @@ export function AddUpdate({ closeModal }: { closeModal: () => void }) {
         event.stopPropagation();
         setPending(true);
         const datos = new FormData();
+        console.log({formData});
         Object.entries(formData).forEach(
             ([key, value]) => {
-                console.log({ key, value });
-                datos.append(key, value);
+                if (key === "responsables" && Array.isArray(value))
+                    datos.append(key, value.join(';'))
+                else if (key !== "responsables")
+                    datos.append(key, value as string);
             },
         );
-        console.log(formData);
-        const parsed = actividadSchema.safeParse(formData);
+        const parsed = localSchemas.localSchema.safeParse(formData);
         if (!parsed.success) {
-            console.log(Array.from(datos.entries()));
-            console.log('errors here')
             setErrors(parsed.error.formErrors.fieldErrors as Record<string, string | string[]>)
         }
 
         else {
             let response: Respuesta | undefined;
+            ;
             if (seleccion) {
                 response = await update(seleccion.id, datos);
             } else {
                 response = await create(datos);
             }
             if (response) {
+                console.log({response})
                 if (response.errores) {
                     setErrors({ ...response.errores as Record<string, string | string[]> })
                 }
@@ -136,10 +177,10 @@ export function AddUpdate({ closeModal }: { closeModal: () => void }) {
                 if (response.tipo === "success") {
                     closeModal();
                 }
-                setPending(false);
+                
             }
         }
-
+        setPending(false);
     };
     return (
         <div className="flex items-center justify-center w-full h-full">
@@ -153,15 +194,15 @@ export function AddUpdate({ closeModal }: { closeModal: () => void }) {
                     <Input
                         isRequired
                         autoComplete="off"
-                        errorMessage={() => displayErrors("icono")}
-                        isInvalid={typeof errors["icono"] !== "undefined"}
-                        label="Icono"
-                        name="icono"
+                        errorMessage={() => displayErrors("codigo")}
+                        isInvalid={typeof errors["codigo"] !== "undefined"}
+                        label="Código"
+                        name="codigo"
                         placeholder="Complete este campo"
                         type="text"
-                        value={formData.icono}
+                        value={formData.codigo}
                         variant="bordered"
-                        onValueChange={handleIconoChange}
+                        onValueChange={handleCodigoChange}
                     />
                     <Input
                         isRequired
@@ -178,6 +219,17 @@ export function AddUpdate({ closeModal }: { closeModal: () => void }) {
                     />
                     <Textarea
                         autoComplete="off"
+                        errorMessage={() => displayErrors("ubicacion")}
+                        isInvalid={typeof errors["ubicacion"] !== "undefined"}
+                        label="Ubicación"
+                        labelPlacement="inside"
+                        placeholder=""
+                        value={formData.ubicacion}
+                        variant="bordered"
+                        onValueChange={handleUbicacionChange}
+                    />
+                    <Textarea
+                        autoComplete="off"
                         errorMessage={() => displayErrors("descripcion")}
                         isInvalid={typeof errors["descripcion"] !== "undefined"}
                         label="Descripcion"
@@ -186,6 +238,46 @@ export function AddUpdate({ closeModal }: { closeModal: () => void }) {
                         value={formData.descripcion}
                         variant="bordered"
                         onValueChange={handleDescripcionChange}
+                    />
+                    <Autocomplete
+                        defaultItems={areas}
+                        errorMessage={() => displayErrors("areaId")}
+                        isInvalid={typeof errors["areaId"] !== "undefined"}
+                        label="Área"
+                        listboxProps={{
+                            emptyContent: "No se encontraron áreas.",
+                        }}
+                        placeholder="Selecciona un área"
+                        selectedKey={formData.areaId.length ? `areaId-${formData.areaId}` : undefined}
+                        variant="bordered"
+                        onSelectionChange={handleAreaChange}
+                        
+                    >
+                        {(item) => (
+                            <AutocompleteItem key={`areaId-${item.id}`} color="secondary" textValue={item.name}>
+                                <div className="flex w-full gap-2 items-center">
+                                    <div className="flex-1 min-w-11 h-11 rounded-md border-2 border-slate flex items-center justify-center">
+                                        <Icon icon="solar:streets-map-point-bold-duotone" className="size-7" />
+                                    </div>
+                                    <div className="w-full">
+                                        <h3 className=" font-semibold line-clamp-1">{item.name}</h3>
+                                        <p className=" text-sm line-clamp-1">
+                                            {item.codigo}
+                                        </p>
+                                    </div>
+                                </div>
+                            </AutocompleteItem>
+                        )}
+                    </Autocomplete>
+                    <ReusableEmail
+                        isRequired
+                        errorMessage={() => displayErrors("responsables")}
+                        label="Responsables:"
+                        labelAdd="Agregar correo de Responsable"
+                        labelDelete="Eliminar correo del Responsable"
+                        labelInput="Correo del Responsable"
+                        value={formData.responsables}
+                        onValueChange={handleResponsableChange}
                     />
                     <Button
                         className="w-full font-semibold"
@@ -208,7 +300,7 @@ export function AddUpdate({ closeModal }: { closeModal: () => void }) {
 }
 
 export function Remove({ closeModal, soft = false }: { closeModal: () => void, soft?: boolean }) {
-    const { seleccion, remove } = useActividadesStore();
+    const { seleccion, remove } = useLocalesStore();
     const [pending, setPending] = useState(false);
     const deleteIcon = soft ? "solar:trash-bin-minimalistic-broken" : "solar:trash-bin-minimalistic-bold";
     const handleDelete = async () => {
@@ -230,9 +322,9 @@ export function Remove({ closeModal, soft = false }: { closeModal: () => void, s
     return <div className="flex items-center justify-center w-full h-full">
         <div className="w-full max-w-xl mx-auto">
             {soft ? (<>
-                <p className="text-danger text-center">Esta actividad será <strong>marcada como eliminada</strong>, pero se podrá recuperar más adelante si es necesario.</p>
+                <p className="text-danger text-center">Este local será <strong>marcado como eliminada</strong>, pero se podrá recuperar más adelante si es necesario.</p>
             </>) : (<>
-                <p className="text-danger text-center">Esta acción <strong>eliminará la actividad de forma permanente</strong>. No podrá recuperarse después de esta operación.</p>
+                <p className="text-danger text-center">Este local será <strong>eliminado de forma permanente</strong>. No podrá recuperarse después de esta operación.</p>
             </>)}
 
             <div className="w-full max-w-md mx-auto flex flex-col gap-4 sm:flex-row mt-4">
@@ -243,7 +335,7 @@ export function Remove({ closeModal, soft = false }: { closeModal: () => void, s
                     size="lg"
                     onPress={() => closeModal()}
                 >
-                    Cancelar la operación
+                    Cancelar
                 </Button>
                 <Button
                     className="w-full font-semibold sm:flex-grow"
@@ -252,7 +344,7 @@ export function Remove({ closeModal, soft = false }: { closeModal: () => void, s
                     size="lg"
                     startContent={
                         !pending && (
-                            <Icon className="w-7 h-7" icon={deleteIcon} />
+                            <Icon className="!size-7" icon={deleteIcon} />
                         )
                     }
                     onPress={() => handleDelete()}
@@ -265,7 +357,7 @@ export function Remove({ closeModal, soft = false }: { closeModal: () => void, s
 }
 
 export function Restore({ closeModal }: { closeModal: () => void }) {
-    const { seleccion, update } = useActividadesStore();
+    const { seleccion, update } = useLocalesStore();
     const [pending, setPending] = useState(false);
     const handleRestore = async () => {
         setPending(true);
@@ -287,7 +379,7 @@ export function Restore({ closeModal }: { closeModal: () => void }) {
     }
     return <div className="flex items-center justify-center w-full h-full">
         <div className="w-full max-w-xl mx-auto">
-            <p className="text-primary text-center">Esta actividad será <strong>restaurada</strong> y marcada como <strong>activa</strong></p>
+            <p className="text-primary text-center">Este local será <strong>restaurado</strong> y marcado como <strong>activo</strong></p>
 
             <div className="w-full max-w-md mx-auto flex flex-col gap-4 sm:flex-row mt-4">
                 <Button
@@ -297,7 +389,7 @@ export function Restore({ closeModal }: { closeModal: () => void }) {
                     size="lg"
                     onPress={() => closeModal()}
                 >
-                    Cancelar la operación
+                    Cancelar
                 </Button>
                 <Button
                     className="w-full font-semibold sm:flex-grow"

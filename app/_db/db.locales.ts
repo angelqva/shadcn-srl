@@ -66,23 +66,14 @@ export class DbLocales {
     }
     static async create(formData: FormData): Promise<Respuesta> {
         const entries = Object.fromEntries(formData.entries());
-        const { responsables, areaId: area, ...rest } = entries;
-        const areaId = Number(area);
-        if(isNaN(areaId)){
-            return {
-                tipo: TipoRespuesta.error,
-                toast: 'Verifique los campos con error.',
-                errores: { areaId: "Proporcione un id válido"}
-            }
-        }
+        const { responsables, ...rest } = entries;
         const data = {
             ...rest,
-            areaId,
             responsables: typeof responsables === 'string' ? responsables.split(';') : [],
         };
         const parsed = localSchema.safeParse(data);
         if (parsed.success) {
-            const fields = { ...parsed.data, responsables: parsed.data.responsables.join(";") };
+            const fields = { ...parsed.data, areaId: Number(parsed.data.areaId), responsables: parsed.data.responsables.join(";") };
             try {
                 const local = await DbLocales.model.create({ data: fields });
                 return {
@@ -103,18 +94,9 @@ export class DbLocales {
     }
     static async update(id: number, formData: FormData): Promise<Respuesta> {
         const entries = Object.fromEntries(formData.entries());
-        const { responsables, areaId: area, eliminadoEn, ...rest } = entries;
-        const areaId = Number(area);
-        if(isNaN(areaId)){
-            return {
-                tipo: TipoRespuesta.error,
-                toast: 'Verifique los campos con error.',
-                errores: { areaId: "Proporcione un id válido"}
-            }
-        }
+        const { responsables, eliminadoEn, ...rest } = entries;
         const data = {
             ...rest,
-            areaId,
             responsables: typeof responsables === 'string' ? responsables.split(';') : [],
         };
         if (eliminadoEn && eliminadoEn === "null") {
@@ -144,7 +126,7 @@ export class DbLocales {
         const parsed = localSchema.safeParse(data);
 
         if (parsed.success) {
-            const fields = { ...parsed.data, responsables: parsed.data.responsables.join(";") };
+            const fields = { ...parsed.data, areaId: Number(parsed.data.areaId), responsables: parsed.data.responsables.join(";") };
             try {
                 const localData = await DbLocales.model.update({
                     where: { id },

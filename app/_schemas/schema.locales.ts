@@ -26,7 +26,11 @@ export const localResponsablesSchema = z.object({
 });
 
 export const localAreaSchema = z.object({
-  areaId: z.number(),
+  areaId: z
+    .string()
+    .refine((val) => !isNaN(Number(val)), {
+      message: "Seleccione un Área",
+    }),
 });
 
 export const localSchema = localNombreSchema
